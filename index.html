@@ -19,6 +19,7 @@
     --accent4: #1a2e05;
     --empty: #1e1e1e;
     --today-border: #a3e635;
+    --danger: #ef4444;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,11 +49,139 @@
     color: var(--accent);
   }
 
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .year-label {
     font-family: 'DM Mono', monospace;
     font-size: 0.75rem;
     color: var(--muted);
   }
+
+  .sync-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sync-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .sync-dot.synced { background: var(--accent); }
+  .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--danger); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* SETUP SCREEN */
+  .setup-screen {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .setup-screen.visible { display: block; }
+
+  .setup-screen h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .setup-screen p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .setup-screen p a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .setup-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .setup-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .setup-input:focus { border-color: var(--accent); }
+
+  .setup-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    color: #0d0d0d;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .setup-btn:hover { opacity: 0.85; }
+
+  .setup-error {
+    font-size: 0.78rem;
+    color: var(--danger);
+    margin-top: 10px;
+    display: none;
+  }
+
+  .settings-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .settings-link:hover { color: var(--text); }
 
   /* HABITS CONFIG */
   .habits-config {
@@ -74,6 +203,7 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: border-color 0.15s;
+    user-select: none;
   }
 
   .habit-tag.active { border-color: var(--accent); }
@@ -81,6 +211,7 @@
     width: 8px; height: 8px;
     border-radius: 50%;
     background: var(--accent);
+    flex-shrink: 0;
   }
 
   .add-habit-btn {
@@ -106,11 +237,17 @@
     overflow-x: auto;
   }
 
+  .heatmap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
   .heatmap-title {
     font-family: 'DM Mono', monospace;
     font-size: 0.7rem;
     color: var(--muted);
-    margin-bottom: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -119,7 +256,6 @@
     display: flex;
     margin-left: 28px;
     margin-bottom: 4px;
-    gap: 0;
   }
 
   .month-label {
@@ -131,7 +267,6 @@
 
   .heatmap-grid {
     display: flex;
-    gap: 0;
   }
 
   .weekday-labels {
@@ -139,7 +274,6 @@
     flex-direction: column;
     gap: 2px;
     margin-right: 4px;
-    padding-top: 0;
   }
 
   .weekday-label {
@@ -169,29 +303,56 @@
     border-radius: 2px;
     background: var(--empty);
     cursor: default;
-    transition: transform 0.1s;
     position: relative;
     flex-shrink: 0;
   }
 
-  .day-cell.future {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
+  .day-cell.future { opacity: 0.25; }
   .day-cell.done-1 { background: var(--accent4); }
   .day-cell.done-2 { background: var(--accent3); }
   .day-cell.done-3 { background: var(--accent2); }
   .day-cell.done-4 { background: var(--accent); }
+  .day-cell.is-today { outline: 1.5px solid var(--today-border); outline-offset: 1px; }
+  .day-cell.empty-slot { background: transparent; }
 
-  .day-cell.is-today {
-    outline: 1.5px solid var(--today-border);
-    outline-offset: 1px;
+  .tooltip {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.65rem;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .day-cell:hover .tooltip { opacity: 1; }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+    justify-content: flex-end;
   }
 
-  .day-cell.empty-slot {
-    background: transparent;
-    cursor: default;
+  .legend-cell {
+    width: 11px; height: 11px;
+    border-radius: 2px;
+  }
+
+  .legend-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin: 0 4px;
   }
 
   /* TODAY PANEL */
@@ -219,6 +380,7 @@
   .today-subtitle {
     font-size: 0.75rem;
     color: var(--muted);
+    margin-top: 2px;
   }
 
   .habit-row {
@@ -243,6 +405,24 @@
     color: var(--muted);
   }
 
+  .habit-row-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .delete-habit {
+    background: none;
+    border: none;
+    color: var(--border);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .delete-habit:hover { color: var(--danger); }
+
   .checkbox {
     width: 22px; height: 22px;
     border: 1.5px solid var(--border);
@@ -255,13 +435,8 @@
     background: var(--empty);
     flex-shrink: 0;
   }
-
   .checkbox:hover { border-color: var(--accent); }
-  .checkbox.checked {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
+  .checkbox.checked { background: var(--accent); border-color: var(--accent); }
   .checkbox.checked::after {
     content: '';
     width: 5px; height: 9px;
@@ -269,27 +444,6 @@
     border-top: none;
     border-left: none;
     transform: rotate(45deg) translateY(-1px);
-  }
-
-  /* LEGEND */
-  .legend {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 10px;
-    justify-content: flex-end;
-  }
-
-  .legend-cell {
-    width: 11px; height: 11px;
-    border-radius: 2px;
-  }
-
-  .legend-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    margin: 0 4px;
   }
 
   /* MODAL */
@@ -309,7 +463,7 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 24px;
-    width: 320px;
+    width: 340px;
   }
 
   .modal h3 {
@@ -363,82 +517,134 @@
     font-weight: 600;
   }
 
-  .tooltip {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 0.65rem;
-    font-family: 'DM Mono', monospace;
-    white-space: nowrap;
-    color: var(--text);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-    z-index: 10;
-  }
-
-  .day-cell:hover .tooltip { opacity: 1; }
-
   .no-habits {
     color: var(--muted);
     font-size: 0.85rem;
     text-align: center;
     padding: 20px;
   }
+
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .loading-overlay.hidden { display: none; }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .main-content { display: none; }
+  .main-content.visible { display: block; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>// hábitos</h1>
-  <span class="year-label" id="yearLabel">2025</span>
-</header>
-
-<div class="habits-config" id="habitsConfig">
-  <!-- habit tags rendered here -->
-  <button class="add-habit-btn" onclick="openModal()">+ nuevo hábito</button>
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">cargando datos...</div>
 </div>
 
-<div class="heatmap-wrapper">
-  <div class="heatmap-title" id="heatmapTitle">todos los días</div>
-  <div class="months-row" id="monthsRow"></div>
-  <div class="heatmap-grid">
-    <div class="weekday-labels">
-      <div class="weekday-label"></div>
-      <div class="weekday-label">L</div>
-      <div class="weekday-label"></div>
-      <div class="weekday-label">X</div>
-      <div class="weekday-label"></div>
-      <div class="weekday-label">V</div>
-      <div class="weekday-label"></div>
+<!-- Setup screen -->
+<div class="setup-screen" id="setupScreen">
+  <h2>// configurar sincronización</h2>
+  <p>
+    Tus datos se guardarán en un archivo <code style="color:var(--accent)">habits-data.json</code> dentro de tu repositorio de GitHub — permanentes y accesibles desde cualquier lugar.<br><br>
+    Necesitas un <a href="https://github.com/settings/tokens/new?description=habitos-tracker&scopes=repo" target="_blank">Personal Access Token</a> con permiso <strong>repo</strong>.
+  </p>
+  <div class="setup-fields">
+    <div class="field-group">
+      <span class="field-label">usuario de GitHub</span>
+      <input class="setup-input" id="inputUser" placeholder="tuusuario" autocomplete="off" />
     </div>
-    <div class="weeks-container" id="weeksContainer"></div>
+    <div class="field-group">
+      <span class="field-label">nombre del repositorio</span>
+      <input class="setup-input" id="inputRepo" placeholder="habitos" autocomplete="off" />
+    </div>
+    <div class="field-group">
+      <span class="field-label">personal access token</span>
+      <input class="setup-input" id="inputToken" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+    </div>
   </div>
-  <div class="legend">
-    <span class="legend-label">menos</span>
-    <div class="legend-cell" style="background:var(--empty); border:1px solid #333;"></div>
-    <div class="legend-cell" style="background:var(--accent4)"></div>
-    <div class="legend-cell" style="background:var(--accent3)"></div>
-    <div class="legend-cell" style="background:var(--accent2)"></div>
-    <div class="legend-cell" style="background:var(--accent)"></div>
-    <span class="legend-label">más</span>
-  </div>
+  <button class="setup-btn" onclick="saveConfig()">conectar y empezar</button>
+  <div class="setup-error" id="setupError"></div>
 </div>
 
-<div class="today-panel">
-  <div class="today-header">
-    <div>
-      <div class="today-date" id="todayDate"></div>
-      <div class="today-subtitle">marca tus hábitos de hoy</div>
+<!-- Main app -->
+<div class="main-content" id="mainContent">
+  <header>
+    <h1>// hábitos</h1>
+    <div class="header-right">
+      <div class="sync-status" id="syncStatus">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel">—</span>
+      </div>
+      <span class="year-label" id="yearLabel"></span>
+      <button class="settings-link" onclick="showSetup()">config</button>
     </div>
-    <div id="todayProgress" style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted)"></div>
+  </header>
+
+  <div class="habits-config" id="habitsConfig"></div>
+
+  <div class="heatmap-wrapper">
+    <div class="heatmap-header">
+      <div class="heatmap-title" id="heatmapTitle">todos los hábitos</div>
+    </div>
+    <div class="months-row" id="monthsRow"></div>
+    <div class="heatmap-grid">
+      <div class="weekday-labels">
+        <div class="weekday-label"></div>
+        <div class="weekday-label">L</div>
+        <div class="weekday-label"></div>
+        <div class="weekday-label">X</div>
+        <div class="weekday-label"></div>
+        <div class="weekday-label">V</div>
+        <div class="weekday-label"></div>
+      </div>
+      <div class="weeks-container" id="weeksContainer"></div>
+    </div>
+    <div class="legend">
+      <span class="legend-label">menos</span>
+      <div class="legend-cell" style="background:var(--empty);border:1px solid #333;"></div>
+      <div class="legend-cell" style="background:var(--accent4)"></div>
+      <div class="legend-cell" style="background:var(--accent3)"></div>
+      <div class="legend-cell" style="background:var(--accent2)"></div>
+      <div class="legend-cell" style="background:var(--accent)"></div>
+      <span class="legend-label">más</span>
+    </div>
   </div>
-  <div id="habitsList"></div>
+
+  <div class="today-panel">
+    <div class="today-header">
+      <div>
+        <div class="today-date" id="todayDate"></div>
+        <div class="today-subtitle">marca tus hábitos de hoy</div>
+      </div>
+      <div id="todayProgress" style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted)"></div>
+    </div>
+    <div id="habitsList"></div>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -454,30 +660,184 @@
 </div>
 
 <script>
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
 const YEAR = new Date().getFullYear();
 const TODAY = new Date();
 TODAY.setHours(0,0,0,0);
 const TODAY_STR = dateStr(TODAY);
+const DATA_FILE = 'habits-data.json';
 
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let config = null; // {user, repo, token}
+let data = { habits: [], log: {} };
+let fileSha = null;
+let selectedHabit = null;
+let syncTimer = null;
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
 function dateStr(d) {
   return d.toISOString().split('T')[0];
 }
 
-function loadData() {
-  try { return JSON.parse(localStorage.getItem('habits_data') || '{"habits":[],"log":{}}'); }
-  catch(e) { return {habits:[], log:{}}; }
+function getConfig() {
+  try { return JSON.parse(localStorage.getItem('gh_habits_config') || 'null'); }
+  catch(e) { return null; }
 }
 
-function saveData(data) {
-  localStorage.setItem('habits_data', JSON.stringify(data));
+function setConfig(c) {
+  localStorage.setItem('gh_habits_config', JSON.stringify(c));
 }
 
-let data = loadData();
-let selectedHabit = null; // null = show all
+// ─── GITHUB API ───────────────────────────────────────────────────────────────
+async function ghRequest(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Authorization': `Bearer ${config.token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`https://api.github.com${path}`, opts);
+  return { ok: res.ok, status: res.status, data: await res.json() };
+}
 
-document.getElementById('yearLabel').textContent = YEAR;
+async function loadFromGitHub() {
+  setSyncStatus('syncing', 'cargando...');
+  try {
+    const res = await ghRequest(`/repos/${config.user}/${config.repo}/contents/${DATA_FILE}`);
+    if (res.ok) {
+      fileSha = res.data.sha;
+      const decoded = atob(res.data.content.replace(/\n/g, ''));
+      data = JSON.parse(decoded);
+      if (!data.habits) data.habits = [];
+      if (!data.log) data.log = {};
+      setSyncStatus('synced', 'sincronizado');
+    } else if (res.status === 404) {
+      // File doesn't exist yet — start fresh
+      fileSha = null;
+      data = { habits: [], log: {} };
+      setSyncStatus('synced', 'nuevo archivo');
+    } else {
+      throw new Error(`GitHub error ${res.status}`);
+    }
+  } catch(e) {
+    setSyncStatus('error', 'error de conexión');
+    throw e;
+  }
+}
 
-// Date helpers
+async function saveToGitHub() {
+  setSyncStatus('syncing', 'guardando...');
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const body = {
+      message: `update habits ${TODAY_STR}`,
+      content,
+      ...(fileSha ? { sha: fileSha } : {})
+    };
+    const res = await ghRequest(`/repos/${config.user}/${config.repo}/contents/${DATA_FILE}`, 'PUT', body);
+    if (res.ok) {
+      fileSha = res.data.content.sha;
+      setSyncStatus('synced', 'guardado ✓');
+    } else {
+      throw new Error(`GitHub save error ${res.status}: ${JSON.stringify(res.data)}`);
+    }
+  } catch(e) {
+    setSyncStatus('error', 'error al guardar');
+    console.error(e);
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(saveToGitHub, 1200);
+}
+
+// ─── SYNC STATUS UI ───────────────────────────────────────────────────────────
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot ' + state;
+  lbl.textContent = label;
+}
+
+// ─── SETUP ────────────────────────────────────────────────────────────────────
+async function saveConfig() {
+  const user = document.getElementById('inputUser').value.trim();
+  const repo = document.getElementById('inputRepo').value.trim();
+  const token = document.getElementById('inputToken').value.trim();
+  const errEl = document.getElementById('setupError');
+  errEl.style.display = 'none';
+
+  if (!user || !repo || !token) {
+    errEl.textContent = 'completa todos los campos';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  config = { user, repo, token };
+
+  // Test the token
+  setSyncStatus('syncing', 'verificando...');
+  try {
+    const res = await ghRequest(`/repos/${user}/${repo}`);
+    if (!res.ok) {
+      errEl.textContent = `No se pudo acceder al repositorio. ¿Existe "${user}/${repo}"? ¿El token tiene permiso "repo"?`;
+      errEl.style.display = 'block';
+      config = null;
+      return;
+    }
+  } catch(e) {
+    errEl.textContent = 'Error de red. Revisa tu conexión.';
+    errEl.style.display = 'block';
+    config = null;
+    return;
+  }
+
+  setConfig(config);
+  document.getElementById('setupScreen').classList.remove('visible');
+  await initApp();
+}
+
+function showSetup() {
+  document.getElementById('mainContent').classList.remove('visible');
+  const s = document.getElementById('setupScreen');
+  s.classList.add('visible');
+  if (config) {
+    document.getElementById('inputUser').value = config.user;
+    document.getElementById('inputRepo').value = config.repo;
+    document.getElementById('inputToken').value = config.token;
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+async function initApp() {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  document.getElementById('yearLabel').textContent = YEAR;
+
+  try {
+    await loadFromGitHub();
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('mainContent').classList.add('visible');
+    renderAll();
+  } catch(e) {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('mainContent').classList.add('visible');
+    renderAll();
+  }
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderHabitsConfig();
+  renderHeatmap();
+  renderTodayPanel();
+  document.getElementById('heatmapTitle').textContent =
+    selectedHabit ? selectedHabit : `todos los hábitos · ${YEAR}`;
+}
+
 function getYearDays(year) {
   const days = [];
   let d = new Date(year, 0, 1);
@@ -488,15 +848,14 @@ function getYearDays(year) {
   return days;
 }
 
-function getDayOfWeek(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return (d.getDay() + 6) % 7; // Mon=0, Sun=6
+function getDayOfWeek(ds) {
+  return (new Date(ds + 'T00:00:00').getDay() + 6) % 7;
 }
 
-function getCompletionRatio(dateStr) {
+function getCompletionRatio(ds) {
   if (!data.habits.length) return 0;
   const habits = selectedHabit ? [selectedHabit] : data.habits;
-  const done = habits.filter(h => data.log[h] && data.log[h][dateStr]).length;
+  const done = habits.filter(h => data.log[h] && data.log[h][ds]).length;
   return done / habits.length;
 }
 
@@ -513,17 +872,13 @@ function renderHeatmap() {
   const weeksContainer = document.getElementById('weeksContainer');
   weeksContainer.innerHTML = '';
 
-  // Build weeks
   const firstDow = getDayOfWeek(days[0]);
   const weeks = [];
   let week = Array(firstDow).fill(null);
 
   for (let ds of days) {
     week.push(ds);
-    if (week.length === 7) {
-      weeks.push(week);
-      week = [];
-    }
+    if (week.length === 7) { weeks.push(week); week = []; }
   }
   if (week.length) {
     while (week.length < 7) week.push(null);
@@ -536,63 +891,45 @@ function renderHeatmap() {
   const monthNames = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   let currentMonth = -1;
 
-  weeks.forEach((week, wi) => {
+  weeks.forEach(week => {
+    const span = document.createElement('span');
+    span.className = 'month-label';
+    span.style.width = '13px';
     const firstReal = week.find(d => d !== null);
     if (firstReal) {
       const m = new Date(firstReal + 'T00:00:00').getMonth();
       if (m !== currentMonth) {
         currentMonth = m;
-        const span = document.createElement('span');
-        span.className = 'month-label';
-        // position: wi * (11+2) = 13px per week
-        span.style.width = '13px';
         span.textContent = monthNames[m];
-        monthsRow.appendChild(span);
-      } else {
-        const span = document.createElement('span');
-        span.className = 'month-label';
-        span.style.width = '13px';
-        monthsRow.appendChild(span);
       }
-    } else {
-      const span = document.createElement('span');
-      span.className = 'month-label';
-      span.style.width = '13px';
-      monthsRow.appendChild(span);
     }
+    monthsRow.appendChild(span);
   });
 
   // Cells
   weeks.forEach(week => {
     const col = document.createElement('div');
     col.className = 'week-col';
-
     week.forEach(ds => {
       const cell = document.createElement('div');
       cell.className = 'day-cell';
-
       if (!ds) {
         cell.classList.add('empty-slot');
       } else {
         const cellDate = new Date(ds + 'T00:00:00');
         const isFuture = cellDate > TODAY;
-        const isToday = ds === TODAY_STR;
-
         if (isFuture) {
           cell.classList.add('future');
         } else {
-          const ratio = getCompletionRatio(ds);
-          const cls = getDoneClass(ratio);
+          const cls = getDoneClass(getCompletionRatio(ds));
           if (cls) cell.classList.add(cls);
         }
+        if (ds === TODAY_STR) cell.classList.add('is-today');
 
-        if (isToday) cell.classList.add('is-today');
-
-        // Tooltip
         const tip = document.createElement('div');
         tip.className = 'tooltip';
         const d = new Date(ds + 'T00:00:00');
-        const label = d.toLocaleDateString('es', {day:'numeric',month:'short'});
+        const label = d.toLocaleDateString('es', {day:'numeric', month:'short'});
         if (!isFuture) {
           const habits = selectedHabit ? [selectedHabit] : data.habits;
           const done = habits.filter(h => data.log[h] && data.log[h][ds]).length;
@@ -602,10 +939,8 @@ function renderHeatmap() {
         }
         cell.appendChild(tip);
       }
-
       col.appendChild(cell);
     });
-
     weeksContainer.appendChild(col);
   });
 }
@@ -614,7 +949,6 @@ function renderHabitsConfig() {
   const container = document.getElementById('habitsConfig');
   container.innerHTML = '';
 
-  // All button
   const allBtn = document.createElement('div');
   allBtn.className = 'habit-tag' + (selectedHabit === null ? ' active' : '');
   allBtn.innerHTML = `<div class="dot"></div> todos`;
@@ -637,9 +971,9 @@ function renderHabitsConfig() {
 }
 
 function renderTodayPanel() {
-  const todayDate = document.getElementById('todayDate');
   const d = new Date();
-  todayDate.textContent = d.toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('todayDate').textContent =
+    d.toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
   const habitsList = document.getElementById('habitsList');
   habitsList.innerHTML = '';
@@ -654,25 +988,22 @@ function renderTodayPanel() {
   data.habits.forEach(h => {
     const checked = !!(data.log[h] && data.log[h][TODAY_STR]);
     if (checked) doneCount++;
+    const streak = getStreak(h);
 
     const row = document.createElement('div');
     row.className = 'habit-row';
-
-    // Streak
-    const streak = getStreak(h);
-
     row.innerHTML = `
       <div class="habit-name">
         <span>${h}</span>
-        ${streak > 1 ? `<span class="habit-streak">${streak} días seguidos</span>` : ''}
+        ${streak > 1 ? `<span class="habit-streak">${streak} días seguidos 🔥</span>` : ''}
       </div>
-      <div class="checkbox ${checked ? 'checked' : ''}" data-habit="${h}"></div>
+      <div class="habit-row-right">
+        <button class="delete-habit" data-h="${h}" title="eliminar hábito">×</button>
+        <div class="checkbox ${checked ? 'checked' : ''}" data-habit="${h}"></div>
+      </div>
     `;
-
-    row.querySelector('.checkbox').onclick = function() {
-      toggleToday(h);
-    };
-
+    row.querySelector('.checkbox').onclick = () => toggleToday(h);
+    row.querySelector('.delete-habit').onclick = () => deleteHabit(h);
     habitsList.appendChild(row);
   });
 
@@ -694,17 +1025,22 @@ function getStreak(habit) {
 
 function toggleToday(habit) {
   if (!data.log[habit]) data.log[habit] = {};
-  data.log[habit][TODAY_STR] = !data.log[habit][TODAY_STR];
-  if (!data.log[habit][TODAY_STR]) delete data.log[habit][TODAY_STR];
-  saveData(data);
+  if (data.log[habit][TODAY_STR]) {
+    delete data.log[habit][TODAY_STR];
+  } else {
+    data.log[habit][TODAY_STR] = true;
+  }
   renderAll();
+  scheduleSave();
 }
 
-function renderAll() {
-  renderHabitsConfig();
-  renderHeatmap();
-  renderTodayPanel();
-  document.getElementById('heatmapTitle').textContent = selectedHabit ? selectedHabit : 'todos los hábitos · ' + YEAR;
+function deleteHabit(habit) {
+  if (!confirm(`¿Eliminar "${habit}"? Se borrará su historial.`)) return;
+  data.habits = data.habits.filter(h => h !== habit);
+  delete data.log[habit];
+  if (selectedHabit === habit) selectedHabit = null;
+  renderAll();
+  scheduleSave();
 }
 
 function openModal() {
@@ -719,24 +1055,31 @@ function closeModal() {
 
 function addHabit() {
   const val = document.getElementById('habitInput').value.trim();
-  if (!val) return;
-  if (data.habits.includes(val)) { closeModal(); return; }
+  if (!val || data.habits.includes(val)) { closeModal(); return; }
   data.habits.push(val);
-  saveData(data);
   closeModal();
   renderAll();
+  scheduleSave();
 }
 
 document.getElementById('habitInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') addHabit();
   if (e.key === 'Escape') closeModal();
 });
-
 document.getElementById('modalOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 });
 
-renderAll();
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+(async () => {
+  config = getConfig();
+  if (!config) {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('setupScreen').classList.add('visible');
+  } else {
+    await initApp();
+  }
+})();
 </script>
 </body>
 </html>
