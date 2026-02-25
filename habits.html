@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hábitos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --muted: #555;
+    --accent: #a3e635;
+    --accent2: #65a30d;
+    --accent3: #3f6212;
+    --accent4: #1a2e05;
+    --empty: #1e1e1e;
+    --today-border: #a3e635;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .year-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* HABITS CONFIG */
+  .habits-config {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    align-items: center;
+  }
+
+  .habit-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px 6px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .habit-tag.active { border-color: var(--accent); }
+  .habit-tag .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .add-habit-btn {
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .add-habit-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* HEATMAP */
+  .heatmap-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+
+  .heatmap-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .months-row {
+    display: flex;
+    margin-left: 28px;
+    margin-bottom: 4px;
+    gap: 0;
+  }
+
+  .month-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .heatmap-grid {
+    display: flex;
+    gap: 0;
+  }
+
+  .weekday-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-right: 4px;
+    padding-top: 0;
+  }
+
+  .weekday-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    height: 11px;
+    line-height: 11px;
+    width: 20px;
+    text-align: right;
+  }
+
+  .weeks-container {
+    display: flex;
+    gap: 2px;
+  }
+
+  .week-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .day-cell {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    background: var(--empty);
+    cursor: default;
+    transition: transform 0.1s;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .day-cell.future {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .day-cell.done-1 { background: var(--accent4); }
+  .day-cell.done-2 { background: var(--accent3); }
+  .day-cell.done-3 { background: var(--accent2); }
+  .day-cell.done-4 { background: var(--accent); }
+
+  .day-cell.is-today {
+    outline: 1.5px solid var(--today-border);
+    outline-offset: 1px;
+  }
+
+  .day-cell.empty-slot {
+    background: transparent;
+    cursor: default;
+  }
+
+  /* TODAY PANEL */
+  .today-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .today-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .today-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .today-subtitle {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .habit-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .habit-row:last-child { border-bottom: none; }
+
+  .habit-name {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .habit-streak {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .checkbox {
+    width: 22px; height: 22px;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    background: var(--empty);
+    flex-shrink: 0;
+  }
+
+  .checkbox:hover { border-color: var(--accent); }
+  .checkbox.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checkbox.checked::after {
+    content: '';
+    width: 5px; height: 9px;
+    border: 2px solid #0d0d0d;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+    justify-content: flex-end;
+  }
+
+  .legend-cell {
+    width: 11px; height: 11px;
+    border-radius: 2px;
+  }
+
+  .legend-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin: 0 4px;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 320px;
+  }
+
+  .modal h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-bottom: 16px;
+    color: var(--accent);
+  }
+
+  .modal input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    outline: none;
+  }
+  .modal input:focus { border-color: var(--accent); }
+
+  .modal-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+  }
+
+  .btn-add {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #0d0d0d;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .tooltip {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.65rem;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+
+  .day-cell:hover .tooltip { opacity: 1; }
+
+  .no-habits {
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>// hábitos</h1>
+  <span class="year-label" id="yearLabel">2025</span>
+</header>
+
+<div class="habits-config" id="habitsConfig">
+  <!-- habit tags rendered here -->
+  <button class="add-habit-btn" onclick="openModal()">+ nuevo hábito</button>
+</div>
+
+<div class="heatmap-wrapper">
+  <div class="heatmap-title" id="heatmapTitle">todos los días</div>
+  <div class="months-row" id="monthsRow"></div>
+  <div class="heatmap-grid">
+    <div class="weekday-labels">
+      <div class="weekday-label"></div>
+      <div class="weekday-label">L</div>
+      <div class="weekday-label"></div>
+      <div class="weekday-label">X</div>
+      <div class="weekday-label"></div>
+      <div class="weekday-label">V</div>
+      <div class="weekday-label"></div>
+    </div>
+    <div class="weeks-container" id="weeksContainer"></div>
+  </div>
+  <div class="legend">
+    <span class="legend-label">menos</span>
+    <div class="legend-cell" style="background:var(--empty); border:1px solid #333;"></div>
+    <div class="legend-cell" style="background:var(--accent4)"></div>
+    <div class="legend-cell" style="background:var(--accent3)"></div>
+    <div class="legend-cell" style="background:var(--accent2)"></div>
+    <div class="legend-cell" style="background:var(--accent)"></div>
+    <span class="legend-label">más</span>
+  </div>
+</div>
+
+<div class="today-panel">
+  <div class="today-header">
+    <div>
+      <div class="today-date" id="todayDate"></div>
+      <div class="today-subtitle">marca tus hábitos de hoy</div>
+    </div>
+    <div id="todayProgress" style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted)"></div>
+  </div>
+  <div id="habitsList"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>nuevo hábito</h3>
+    <input type="text" id="habitInput" placeholder="ej: leer, meditar, ejercicio..." maxlength="30" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">cancelar</button>
+      <button class="btn-add" onclick="addHabit()">agregar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const YEAR = new Date().getFullYear();
+const TODAY = new Date();
+TODAY.setHours(0,0,0,0);
+const TODAY_STR = dateStr(TODAY);
+
+function dateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem('habits_data') || '{"habits":[],"log":{}}'); }
+  catch(e) { return {habits:[], log:{}}; }
+}
+
+function saveData(data) {
+  localStorage.setItem('habits_data', JSON.stringify(data));
+}
+
+let data = loadData();
+let selectedHabit = null; // null = show all
+
+document.getElementById('yearLabel').textContent = YEAR;
+
+// Date helpers
+function getYearDays(year) {
+  const days = [];
+  let d = new Date(year, 0, 1);
+  while (d.getFullYear() === year) {
+    days.push(dateStr(new Date(d)));
+    d.setDate(d.getDate() + 1);
+  }
+  return days;
+}
+
+function getDayOfWeek(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return (d.getDay() + 6) % 7; // Mon=0, Sun=6
+}
+
+function getCompletionRatio(dateStr) {
+  if (!data.habits.length) return 0;
+  const habits = selectedHabit ? [selectedHabit] : data.habits;
+  const done = habits.filter(h => data.log[h] && data.log[h][dateStr]).length;
+  return done / habits.length;
+}
+
+function getDoneClass(ratio) {
+  if (ratio === 0) return '';
+  if (ratio <= 0.25) return 'done-1';
+  if (ratio <= 0.5) return 'done-2';
+  if (ratio <= 0.75) return 'done-3';
+  return 'done-4';
+}
+
+function renderHeatmap() {
+  const days = getYearDays(YEAR);
+  const weeksContainer = document.getElementById('weeksContainer');
+  weeksContainer.innerHTML = '';
+
+  // Build weeks
+  const firstDow = getDayOfWeek(days[0]);
+  const weeks = [];
+  let week = Array(firstDow).fill(null);
+
+  for (let ds of days) {
+    week.push(ds);
+    if (week.length === 7) {
+      weeks.push(week);
+      week = [];
+    }
+  }
+  if (week.length) {
+    while (week.length < 7) week.push(null);
+    weeks.push(week);
+  }
+
+  // Month labels
+  const monthsRow = document.getElementById('monthsRow');
+  monthsRow.innerHTML = '';
+  const monthNames = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  let currentMonth = -1;
+
+  weeks.forEach((week, wi) => {
+    const firstReal = week.find(d => d !== null);
+    if (firstReal) {
+      const m = new Date(firstReal + 'T00:00:00').getMonth();
+      if (m !== currentMonth) {
+        currentMonth = m;
+        const span = document.createElement('span');
+        span.className = 'month-label';
+        // position: wi * (11+2) = 13px per week
+        span.style.width = '13px';
+        span.textContent = monthNames[m];
+        monthsRow.appendChild(span);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'month-label';
+        span.style.width = '13px';
+        monthsRow.appendChild(span);
+      }
+    } else {
+      const span = document.createElement('span');
+      span.className = 'month-label';
+      span.style.width = '13px';
+      monthsRow.appendChild(span);
+    }
+  });
+
+  // Cells
+  weeks.forEach(week => {
+    const col = document.createElement('div');
+    col.className = 'week-col';
+
+    week.forEach(ds => {
+      const cell = document.createElement('div');
+      cell.className = 'day-cell';
+
+      if (!ds) {
+        cell.classList.add('empty-slot');
+      } else {
+        const cellDate = new Date(ds + 'T00:00:00');
+        const isFuture = cellDate > TODAY;
+        const isToday = ds === TODAY_STR;
+
+        if (isFuture) {
+          cell.classList.add('future');
+        } else {
+          const ratio = getCompletionRatio(ds);
+          const cls = getDoneClass(ratio);
+          if (cls) cell.classList.add(cls);
+        }
+
+        if (isToday) cell.classList.add('is-today');
+
+        // Tooltip
+        const tip = document.createElement('div');
+        tip.className = 'tooltip';
+        const d = new Date(ds + 'T00:00:00');
+        const label = d.toLocaleDateString('es', {day:'numeric',month:'short'});
+        if (!isFuture) {
+          const habits = selectedHabit ? [selectedHabit] : data.habits;
+          const done = habits.filter(h => data.log[h] && data.log[h][ds]).length;
+          tip.textContent = `${label} · ${done}/${habits.length}`;
+        } else {
+          tip.textContent = label;
+        }
+        cell.appendChild(tip);
+      }
+
+      col.appendChild(cell);
+    });
+
+    weeksContainer.appendChild(col);
+  });
+}
+
+function renderHabitsConfig() {
+  const container = document.getElementById('habitsConfig');
+  container.innerHTML = '';
+
+  // All button
+  const allBtn = document.createElement('div');
+  allBtn.className = 'habit-tag' + (selectedHabit === null ? ' active' : '');
+  allBtn.innerHTML = `<div class="dot"></div> todos`;
+  allBtn.onclick = () => { selectedHabit = null; renderAll(); };
+  container.appendChild(allBtn);
+
+  data.habits.forEach(h => {
+    const tag = document.createElement('div');
+    tag.className = 'habit-tag' + (selectedHabit === h ? ' active' : '');
+    tag.innerHTML = `<div class="dot"></div> ${h}`;
+    tag.onclick = () => { selectedHabit = h; renderAll(); };
+    container.appendChild(tag);
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-habit-btn';
+  addBtn.textContent = '+ nuevo hábito';
+  addBtn.onclick = openModal;
+  container.appendChild(addBtn);
+}
+
+function renderTodayPanel() {
+  const todayDate = document.getElementById('todayDate');
+  const d = new Date();
+  todayDate.textContent = d.toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  const habitsList = document.getElementById('habitsList');
+  habitsList.innerHTML = '';
+
+  if (!data.habits.length) {
+    habitsList.innerHTML = '<div class="no-habits">agrega tu primer hábito arriba ↑</div>';
+    document.getElementById('todayProgress').textContent = '';
+    return;
+  }
+
+  let doneCount = 0;
+  data.habits.forEach(h => {
+    const checked = !!(data.log[h] && data.log[h][TODAY_STR]);
+    if (checked) doneCount++;
+
+    const row = document.createElement('div');
+    row.className = 'habit-row';
+
+    // Streak
+    const streak = getStreak(h);
+
+    row.innerHTML = `
+      <div class="habit-name">
+        <span>${h}</span>
+        ${streak > 1 ? `<span class="habit-streak">${streak} días seguidos</span>` : ''}
+      </div>
+      <div class="checkbox ${checked ? 'checked' : ''}" data-habit="${h}"></div>
+    `;
+
+    row.querySelector('.checkbox').onclick = function() {
+      toggleToday(h);
+    };
+
+    habitsList.appendChild(row);
+  });
+
+  document.getElementById('todayProgress').textContent = `${doneCount}/${data.habits.length}`;
+}
+
+function getStreak(habit) {
+  let streak = 0;
+  let d = new Date(TODAY);
+  while (true) {
+    const ds = dateStr(d);
+    if (data.log[habit] && data.log[habit][ds]) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
+
+function toggleToday(habit) {
+  if (!data.log[habit]) data.log[habit] = {};
+  data.log[habit][TODAY_STR] = !data.log[habit][TODAY_STR];
+  if (!data.log[habit][TODAY_STR]) delete data.log[habit][TODAY_STR];
+  saveData(data);
+  renderAll();
+}
+
+function renderAll() {
+  renderHabitsConfig();
+  renderHeatmap();
+  renderTodayPanel();
+  document.getElementById('heatmapTitle').textContent = selectedHabit ? selectedHabit : 'todos los hábitos · ' + YEAR;
+}
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('habitInput').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('habitInput').value = '';
+}
+
+function addHabit() {
+  const val = document.getElementById('habitInput').value.trim();
+  if (!val) return;
+  if (data.habits.includes(val)) { closeModal(); return; }
+  data.habits.push(val);
+  saveData(data);
+  closeModal();
+  renderAll();
+}
+
+document.getElementById('habitInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addHabit();
+  if (e.key === 'Escape') closeModal();
+});
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+renderAll();
+</script>
+</body>
+</html>
